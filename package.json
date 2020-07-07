@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "start": "yarn db:drop; yarn db:start",
+    "db:start": "docker run --name education -p 5434:5432 -d -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=education postgres:10",
+    "db:stop": "docker stop education",
+    "db:drop": "docker rm -f education"
+  },
+  "dependencies": {
+    "knex": "^0.21.1",
+    "pg": "^8.2.1"
+  }
+}
