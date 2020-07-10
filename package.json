@@ -6,7 +6,9 @@
     "db:drop": "docker rm -f education"
   },
   "dependencies": {
+    "faker": "^4.1.0",
     "knex": "^0.21.1",
+    "lodash": "^4.17.15",
     "pg": "^8.2.1"
   }
 }
