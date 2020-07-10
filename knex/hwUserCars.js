@@ -1,17 +1,9 @@
 const faker = require("faker");
 const _ = require("lodash");
-const db = require("knex")({
-  client: "pg",
-  connection: {
-    host: "localhost",
-    user: "postgres",
-    port: "5434",
-    password: "postgres",
-    database: "education",
-  },
-});
 
-const mainFunc = async () => {
+const { db, generateMany } = require("./init");
+
+const hwUserCars = async () => {
   const getUserTable = await db
     .select()
     .table("users")
@@ -56,29 +48,38 @@ const mainFunc = async () => {
           table.string("name");
           table.float("price");
           table.timestamps();
+          table.integer("user_cars").unsigned();
+          table.foreign("user_cars").references("users.id");
         })
         .then(function () {
           return db("cars").insert(carsData);
         });
+
+      await db("cars").where({ id: 10 }).update({ user_cars: 3 });
+      await db("cars").where({ id: 9 }).update({ user_cars: 2 });
+      await db("cars").where({ id: 8 }).update({ user_cars: 2 });
     }
+
+    //получение cars и users
+
+    const cars = await db.select("*").from("cars");
+    const users = await db.select("*").from("users");
+    console.log("cars", cars);
+    console.log("users", users);
+
+    //удаление машины
+
+    await db("cars").where("id", 2).del();
+
+    //запрос на получение всех пользователей, у которых есть хотя бы 1 машина
+
+    const join = await db
+      .from("users")
+      .innerJoin("cars", "users.id", "cars.user_cars");
+    console.log("join", join);
   } catch (err) {
     console.log(err);
   }
 };
 
-mainFunc();
-
-async function generateMany(count, generate) {
-  let results = [];
-  let i = 0;
-  const chunks = _.chunk(_.range(count), 10);
-  console.log("count", _.range(count));
-
-  for (const arr of chunks) {
-    console.log("arr", arr);
-    const promises = arr.map(async () => generate(i++));
-    results = [...results, ...(await Promise.all(promises))];
-  }
-
-  return results;
-}
+hwUserCars();
